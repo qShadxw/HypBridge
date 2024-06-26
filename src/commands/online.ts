@@ -4,7 +4,7 @@ const regex = {
     bound: /-----------------------------------------------------/,
     guildRank: /-- (.+) --/,
     playerOnlineStatus: /([^ ]+) ●/g,
-    onlineMembers: /Online Members: (\d+)/,
+    onlineMembers: /Online Members: (\d+)/g,
 };
 
 export default {
@@ -16,6 +16,7 @@ export default {
         let repliedToInteraction = false;
         let boundReceived = 0;
         let currentGuildRank: string | null = null;
+        let playerCount: string | undefined;
         const players: { [name: string]: Array<string> } = {};
         const listener = (message: string) => {
             if (regex.bound.test(message)) {
@@ -23,6 +24,9 @@ export default {
             }
             if (boundReceived === 0) {
                 return;
+            }
+            if (playerCount === undefined || playerCount === null) {
+                playerCount = regex.onlineMembers.exec(message)?.at(1);
             }
             const newGuildRank = regex.guildRank.exec(message)?.at(1);
             if (newGuildRank) {
@@ -41,10 +45,8 @@ export default {
                 }
             }
             if (boundReceived >= 2) {
-                const playerCount = regex.onlineMembers.exec(message)?.at(1);
-
                 bot.mineflayer.removeListener('messagestr', listener);
-                const embed = new EmbedBuilder().setColor('Green').setTitle(`Online Players [${playerCount}/${bot.totalCount}]`);
+                const embed = new EmbedBuilder().setColor('Green').setTitle(`Online Players ${playerCount === undefined ? '' : `[${playerCount}/${bot.totalCount}]`}`);
 
                 Object.entries(players).forEach(([guildRank, usernames]) => {
                     embed.addFields({ name: guildRank, value: `\`${usernames.join(' ')}\`` });
