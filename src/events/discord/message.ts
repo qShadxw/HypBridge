@@ -5,6 +5,7 @@ import replaceEmojis from '@util/custom-emojis';
 import replaceUserPings from '@util/replace-user-ping';
 
 const badwords = ['cock', 'dick', 'coon', 'czarnuch', 'Czarnuch', 'K Y S', 'K YS', 'kill yourself', 'KY S', 'kys', 'n i g g a', 'n i g g a s', 'n i g g e r', 'n i g g e r s', 'N igga', 'n igger', 'negerzoen', 'negr', 'Negr', 'ngga', 'NGGA', 'ni gga', 'ni gger', 'Nig', 'nig ga', 'nig ger', 'niga', 'nigA', 'niGa', 'nIga', 'Niga', 'NIGA', 'nigg', 'nigg a', 'NIGG A', 'nigg er', 'nigg3r', 'Nigga', 'niggas', 'nigge r', 'Nigger', 'niggerlecton', 'niggerman', 'niggermancer', 'niggers', 'niglet', 'niguh', 'nlgg3r', 'nlgga', 'nlgger', 'nlggers', 'nyagah', 'ниггер'];
+const badwordExceptions = ['montenegro'];
 // const dataset = new DataSet<{ originalWord: string }>()
 //     .addAll(englishDataset)
 //     .removePhrasesIf((phrase) => whitelist.includes(phrase.metadata!.originalWord));
@@ -50,7 +51,12 @@ export default {
             }
         }
 
-        if (badwords.some(word => message.content.includes(word))) {
+        const isBadWord = (str: string, badwordExceptions: string[], badwords: string[]): boolean => {
+            const exceptionStrippedMessage = badwordExceptions.reduce((acc, substr) => acc.replace(new RegExp(substr, 'g'), ''), str);
+            return badwords.some(word => exceptionStrippedMessage.toLowerCase().includes(word.toLowerCase()));
+        };
+
+        if (isBadWord(message.content, badwordExceptions, badwords)) {
             await message.channel.send(
                 `${emojis.warning} ${message.author.username}, you may not use profane language!`
             );
