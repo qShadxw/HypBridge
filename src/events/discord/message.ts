@@ -52,7 +52,7 @@ export default {
         }
 
         const isBadWord = (str: string, badwordExceptions: string[], badwords: string[]): boolean => {
-            const exceptionStrippedMessage = badwordExceptions.reduce((acc, substr) => acc.replace(new RegExp(substr, 'g'), ''), str);
+            const exceptionStrippedMessage = badwordExceptions.reduce((acc, substr) => acc.replace(new RegExp(substr, 'gi'), ''), str);
             return badwords.some(word => exceptionStrippedMessage.toLowerCase().includes(word.toLowerCase()));
         };
 
